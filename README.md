@@ -46,4 +46,8 @@ In this case, we just wanted to archive some user stories:
   * As a player I want to explore
   * As a player I want to gain experience through fighting
   * As a player I want to save and resume a game
+  
+Another improvement that can be done in a future, is turn the project more flexible to configure
+the main theme of the personas and history.
+Read data from database and store some data on database, to configure the game.
 
