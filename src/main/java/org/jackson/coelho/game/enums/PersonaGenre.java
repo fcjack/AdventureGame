@@ -15,7 +15,7 @@ public enum PersonaGenre {
 
     public static PersonaGenre getGenreBySymbol(char symbol) {
         for (PersonaGenre personaGenre : values()) {
-            if (personaGenre.getSymbol().equals(symbol)) {
+            if (personaGenre.getSymbol().equals(Character.toUpperCase(symbol))) {
                 return personaGenre;
             }
         }

@@ -2,7 +2,6 @@ package org.jackson.coelho.game.model;
 
 import org.jackson.coelho.game.enums.TypeClass;
 
-import java.util.Objects;
 import java.util.Random;
 
 /**

@@ -40,7 +40,7 @@ public class FightMenu extends AbstractMenu {
 
     }
 
-    boolean processOption() {
+    public boolean processFightAction() {
         try {
             int option = getScanner().nextInt();
             if (option < 1 || option > 2) {

@@ -1,10 +1,9 @@
 package org.jackson.coelho.game.menu;
 
 import org.jackson.coelho.game.enums.Direction;
-import org.jackson.coelho.game.model.MapPoint;
 import org.jackson.coelho.game.model.Position;
+import org.jackson.coelho.game.service.ExploreService;
 import org.jackson.coelho.game.service.MapService;
-import org.jackson.coelho.game.service.PersonaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -18,18 +17,15 @@ public class ExploreMenu extends AbstractMenu {
 
     private final MapService mapService;
 
-    private final PersonaService personaService;
-
-    private final FightMenu fightMenu;
-
     private final SaveMenu saveMenu;
 
+    private final ExploreService exploreService;
+
     @Autowired
-    public ExploreMenu(MapService mapService, PersonaService personaService, FightMenu fightMenu, SaveMenu saveMenu) {
+    public ExploreMenu(MapService mapService, SaveMenu saveMenu, ExploreService exploreService) {
         this.mapService = mapService;
-        this.personaService = personaService;
-        this.fightMenu = fightMenu;
         this.saveMenu = saveMenu;
+        this.exploreService = exploreService;
     }
 
     @Override
@@ -45,48 +41,29 @@ public class ExploreMenu extends AbstractMenu {
             System.out.println("We are on the beginning of the adventure");
         }
 
-        chooseDirection();
+        chooseActionToTake();
     }
 
-    private void chooseDirection() {
+    private void chooseActionToTake() {
 
         if (mapService.hasEnemiesOnGame()) {
             buildActionOptions();
             try {
-                int option = getScanner().nextInt();
-                if (option == 0) {
+                int action = getScanner().nextInt();
+                if (action == 0) {
                     saveGameAction();
                 } else {
                     System.out.println("How many steps do you want to walk?");
                     int steps = getScanner().nextInt();
-                    MapPoint mapPoint = mapService.movePersona(getCurrentPersona().getCurrentPosition(),
-                            Direction.getValueByIndex(--option), steps);
-
-                    getCurrentPersona().setCurrentPosition(mapPoint.getPosition());
-                    if (mapPoint.hasEnemy()) {
-                        System.out.println(getCurrentPersona());
-                        fightMenu.setCurrentPersona(getCurrentPersona());
-                        fightMenu.setCurrentEnemy(mapPoint.getEnemy());
-                        fightMenu.init();
-                        boolean win = fightMenu.processOption();
-                        if (win) {
-                            personaService.improvePersona(getCurrentPersona(), mapPoint.getEnemy());
-                            mapService.removeEnemy(mapPoint);
-                        } else if (!getCurrentPersona().isAlive()) {
-                            System.out.println("You lost the fight! It is a game over! :(");
-                        }
-                    } else if (mapPoint.isRecover()) {
-                        System.out.println("You found a recover item on map, your HP will be restored!");
-                        getCurrentPersona().recoverHP();
-                    }
+                    exploreService.explore(getCurrentPersona(), steps, Direction.getValueByIndex(--action));
 
                     if (getCurrentPersona().isAlive()) {
-                        chooseDirection();
+                        chooseActionToTake();
                     }
                 }
             } catch (IllegalArgumentException e) {
                 System.out.println("Invalid option, try again!");
-                chooseDirection();
+                chooseActionToTake();
             }
         }
     }
@@ -94,7 +71,7 @@ public class ExploreMenu extends AbstractMenu {
     private void saveGameAction() {
         saveMenu.setCurrentPersona(getCurrentPersona());
         saveMenu.init();
-        chooseDirection();
+        chooseActionToTake();
     }
 
     private void buildActionOptions() {
@@ -116,8 +93,6 @@ public class ExploreMenu extends AbstractMenu {
         if (currentPosition.getHorizontal() < mapService.getMaxHorizontal()) {
             System.out.println("(4) MOVE DOWN");
         }
-
-        System.out.println("(9) EXIT GAME");
     }
 
 }
