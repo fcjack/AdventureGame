@@ -10,13 +10,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by jackson on 12/10/17.
@@ -40,38 +41,40 @@ public class MapServiceImpl implements MapService {
     }
 
     private void processMapFile() throws IOException {
-        loadEnemies(new HashSet<>());
-        List<String> lines = Files.readAllLines(Paths.get(mapFile.getFile().getPath()));
+        try (BufferedReader buffer = new BufferedReader(new InputStreamReader(mapFile.getInputStream()))) {
+            loadEnemies(new HashSet<>());
+            List<String> lines = buffer.lines().collect(Collectors.toList());
 
-        maxVertical = lines.get(0).length();
-        maxHorizontal = Math.toIntExact(lines.size());
-        map = new MapPoint[maxHorizontal][maxVertical];
+            maxVertical = lines.get(0).length();
+            maxHorizontal = Math.toIntExact(lines.size());
+            map = new MapPoint[maxHorizontal][maxVertical];
 
-        final int[] lineIndex = {0};
-        lines.forEach(line -> {
-            Random random = new Random();
-            for (int i = 0; i < line.length(); i++) {
-                if (line.charAt(i) == 'E') {
-                    Position enemyPosition = new Position(lineIndex[0], i);
-                    int classRandom = random.nextInt(4);
-                    Enemy enemy = new Enemy(TypeClass.getValueByIndex(classRandom));
-                    enemy.setCurrentPosition(enemyPosition);
+            final int[] lineIndex = {0};
+            lines.forEach(line -> {
+                Random random = new Random();
+                for (int i = 0; i < line.length(); i++) {
+                    if (line.charAt(i) == 'E') {
+                        Position enemyPosition = new Position(lineIndex[0], i);
+                        int classRandom = random.nextInt(4);
+                        Enemy enemy = new Enemy(TypeClass.getValueByIndex(classRandom));
+                        enemy.setCurrentPosition(enemyPosition);
 
-                    map[lineIndex[0]][i] = new MapPoint(enemy);
-                    enemies.add(enemy);
-                } else if (line.charAt(i) == 'R') {
-                    MapPoint point = new MapPoint();
-                    point.setPosition(new Position(lineIndex[0], i));
-                    point.setRecover(true);
-                    map[lineIndex[0]][i] = point;
-                } else {
-                    MapPoint point = new MapPoint();
-                    point.setPosition(new Position(lineIndex[0], i));
-                    map[lineIndex[0]][i] = point;
+                        map[lineIndex[0]][i] = new MapPoint(enemy);
+                        enemies.add(enemy);
+                    } else if (line.charAt(i) == 'R') {
+                        MapPoint point = new MapPoint();
+                        point.setPosition(new Position(lineIndex[0], i));
+                        point.setRecover(true);
+                        map[lineIndex[0]][i] = point;
+                    } else {
+                        MapPoint point = new MapPoint();
+                        point.setPosition(new Position(lineIndex[0], i));
+                        map[lineIndex[0]][i] = point;
+                    }
                 }
-            }
-            lineIndex[0]++;
-        });
+                lineIndex[0]++;
+            });
+        }
     }
 
     @Override
@@ -125,7 +128,7 @@ public class MapServiceImpl implements MapService {
 
     private MapPoint moveRight(Position currentPosition, int steps) {
         if ((currentPosition.getVertical() + steps) > getMaxVertical()) {
-            steps = getMaxVertical() - currentPosition.getVertical();
+            steps = getMaxVertical() - currentPosition.getVertical() - 1;
         }
 
         int nextPosition = currentPosition.getVertical();

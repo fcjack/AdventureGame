@@ -34,6 +34,7 @@ public class ExploreMenu extends AbstractMenu {
             mapService.buildMap();
         } catch (IOException e) {
             System.err.println("CRITICAL ERROR LOADING THE MAP FILE");
+            e.printStackTrace();
         }
         Position currentPostion = getCurrentPersona().getCurrentPosition();
 

@@ -36,7 +36,7 @@ public class MapServiceImplTest {
     public void buildMap() throws Exception {
 
         Resource fileResource = new FileSystemResource("src/test/resources/map.txt");
-        Mockito.when(mapFile.getFile()).thenReturn(fileResource.getFile());
+        Mockito.when(mapFile.getInputStream()).thenReturn(fileResource.getInputStream());
         mapService.buildMap();
 
         Assert.assertEquals(9, mapService.getMaxHorizontal().intValue());
