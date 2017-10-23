@@ -40,12 +40,6 @@ This snapshot contains Persona data, Map status, Enemies status and the name of 
 
 This version is a simple beta version that can be improved, so usability points can be performed on project and more workflows
 on game with fights, itens, equipments and another improvements on persona can be developed on future.
-In this case, we just wanted to archive some user stories:
-
-  * As a player I want to create a character
-  * As a player I want to explore
-  * As a player I want to gain experience through fighting
-  * As a player I want to save and resume a game
   
 Another improvement that can be done in a future, is turn the project more flexible to configure
 the main theme of the personas and history.
